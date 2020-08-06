@@ -11,18 +11,23 @@ import time
 import math
 from scipy.io import wavfile
 from queue import Queue
+import torchaudio
 
 def round_down(num, divisor):
     return num - (num%divisor)
 
 def loadWAV(filename, max_frames, evalmode=True, num_eval=10):
-
+    #print(max_frames)
     # Maximum audio length
     max_audio = max_frames * 160 + 240
 
     # Read wav file and convert to torch tensor
     sample_rate, audio  = wavfile.read(filename)
-
+    #audio, sample_rate = torchaudio.load_wav(filename)
+    '''resample = torchaudio.transforms.Resample(sample_rate, 22050)
+    audio = resample(torch.from_numpy(audio).float().unsqueeze(0))
+    audio = audio.squeeze(0).cpu().numpy()'''
+    #print(audio.shape)
     audiosize = audio.shape[0]
 
     if audiosize <= max_audio:
@@ -79,7 +84,7 @@ class DatasetLoader(object):
                     self.data_dict[speaker_name] = [];
 
                 self.data_dict[speaker_name].append(filename);
-
+        #print(self.data_dict)
         ### Initialize Workers...
         self.datasetQueue = Queue(self.maxQueueSize);
     

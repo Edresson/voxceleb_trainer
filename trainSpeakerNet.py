@@ -65,7 +65,8 @@ feat_save_path      = ""
 if not(os.path.exists(model_save_path)):
     os.makedirs(model_save_path)
         
-if not(os.path.exists(result_save_path)):
+
+
     os.makedirs(result_save_path)
 
 ## Load models
@@ -93,8 +94,11 @@ for ii in range(0,it-1):
 
 ## Evaluation code
 if args.eval == True:
-        
-    sc, lab = s.evaluateFromList(args.test_list, print_interval=100, feat_dir=feat_save_path, test_path=args.test_path, eval_frames=args.eval_frames)
+    if args.model != "Speech2Phone":    
+        sc, lab = s.evaluateFromList(args.test_list, print_interval=100, feat_dir=feat_save_path, test_path=args.test_path, eval_frames=args.eval_frames)
+    else:
+        sc, lab = s.evaluateFromList(args.test_list, print_interval=100, feat_dir=feat_save_path, test_path=args.test_path, eval_frames=args.max_frames)
+
     result = tuneThresholdfromScore(sc, lab, [1, 0.1]);
     print('EER %2.4f'%result[1])
 
@@ -129,10 +133,13 @@ while(1):
 
     ## Validate and save
     if it % args.test_interval == 0:
-
+        
         print(time.strftime("%Y-%m-%d %H:%M:%S"), it, "Evaluating...");
+        if args.model != "Speech2Phone":
+            sc, lab = s.evaluateFromList(args.test_list, print_interval=100, feat_dir=feat_save_path, test_path=args.test_path, eval_frames=args.eval_frames)
+        else:
+            sc, lab = s.evaluateFromList(args.test_list, print_interval=100, feat_dir=feat_save_path, test_path=args.test_path, eval_frames=args.max_frames)
 
-        sc, lab = s.evaluateFromList(args.test_list, print_interval=100, feat_dir=feat_save_path, test_path=args.test_path, eval_frames=args.eval_frames)
         result = tuneThresholdfromScore(sc, lab, [1, 0.1]);
 
         print(time.strftime("%Y-%m-%d %H:%M:%S"), "LR %f, TEER/TAcc %2.2f, TLOSS %f, VEER %2.4f"%( max(clr), traineer, loss, result[1]));
